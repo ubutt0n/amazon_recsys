@@ -1,0 +1,64 @@
+stages:
+
+  get_data:
+    cmd: source src/data/get_data.sh
+    deps:
+      - src/data/get_data.sh
+    outs:
+      - data/raw/meta_Grocery_and_Gourmet_Food.jsonl
+      - data/raw/Grocery_and_Gourmet_Food.jsonl
+
+  preprocess:
+    cmd: python src/data/preprocess.py data/raw/meta_Grocery_and_Gourmet_Food.jsonl data/raw/Grocery_and_Gourmet_Food.jsonl data/interim/items.csv data/interim/interactions.csv data/interim/item_images/
+    deps:
+      - src/data/preprocess.py
+      - data/raw/meta_Grocery_and_Gourmet_Food.jsonl
+      - data/raw/Grocery_and_Gourmet_Food.jsonl
+      - data/interim/item_images/
+    outs:
+      - data/interim/items.csv
+      - data/interim/interactions.csv
+  
+  train_test_split:
+    cmd: python src/features/train_test_split.py data/interim/interactions.csv data/processed/interactions_train.csv data/processed/interactions_test.csv
+    deps:
+      - src/features/train_test_split.py
+      - data/interim/interactions.csv
+    outs:
+      - data/processed/interactions_train.csv
+      - data/processed/interactions_test.csv
+  
+  get_als_embeddings:
+    cmd: python src/features/get_als_features.py data/processed/interactions_train.csv data/processed/items_als_embeddings.pickle data/processed/users_als_embeddings.pickle models/als_model.npz
+    deps:
+      - src/features/get_als_features.py
+      - data/processed/interactions_train.csv
+    outs:
+      - data/processed/items_als_embeddings.pickle
+      - data/processed/users_als_embeddings.pickle
+      - models/als_model.npz
+    
+  get_CLIP_items:
+    cmd: python src/features/get_full_CLIP_items.py
+    deps:
+      - data/interim/items.csv
+      - data/processed/interactions_train.csv
+      - data/processed/items_als_embeddings.pickle
+    outs:
+      - data/processed/items_full_CLIP.pickle
+
+  get_full_CLIP_users:
+    cmd: python src/features/get_full_CLIP_users.py
+    deps:
+      - data/processed/items_full_CLIP.pickle
+      - data/processed/interactions_train.csv
+      - data/processed/users_als_embeddings.pickle
+    outs:
+      - data/processed/users_full_CLIP.pickle
+  
+  create_item_info_table:
+    cmd: python src/db/create_item_info_table.py
+    deps:
+      - data/interim/item_images
+      - data/interim/interactions.csv
+      - data/interim/items.csv
