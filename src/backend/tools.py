@@ -4,7 +4,6 @@ import numpy as np
 import json
 from scipy.sparse import csr_matrix
 import pickle
-import torch
 from dotenv import load_dotenv
 import os
 from pydantic import BaseModel
@@ -31,7 +30,7 @@ def get_recs(
     return items_for_rec
 
 def get_sql_engine():
-    connection_string = f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('DATABASE_HOST')}/{os.getenv('POSTGRES_DB')}"
+    connection_string = f"postgresql://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@db:5432/{os.getenv('POSTGRES_DB')}"
     engine = create_engine(connection_string)
     return engine
 
@@ -54,10 +53,10 @@ class Model:
 
     def __init__(self, model_name: str, als_weights: str, item_id_map: str, item_embeddings_path: str, item_encoded_path: str):
 
-        mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI"))
+        mlflow.set_tracking_uri("http://mlflow:5000")
+        self.user_encoder = mlflow.pyfunc.load_model(f"models:/{model_name}/latest")
         self.als_model = AlternatingLeastSquares()
         self.als_model = self.als_model.load(als_weights)
-        self.user_encoder = mlflow.pyfunc.load_model(f"models:/{model_name}/latest")
         with open(item_id_map, "r") as jsfile: self.iid_map = json.load(jsfile)
         with open(item_embeddings_path, "rb") as f: self.item_embeddings = pickle.load(f)
         with open(item_encoded_path, "rb") as f: self.item_encoded = pickle.load(f)

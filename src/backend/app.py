@@ -4,12 +4,14 @@ from fastapi.responses import StreamingResponse
 import json
 from io import BytesIO
 from sqlalchemy import text
+from dotenv import load_dotenv
 
+load_dotenv()
 
-als_w = "models/als_model.npz"
-iidm = "data/processed/item_id_map.json"
-item_embs = "data/processed/items_full_CLIP_wo_als.pickle"
-item_enc = "data/processed/items_full_encoded_test.pickle"
+als_w = "als_model.npz"
+iidm = "item_id_map.json"
+item_embs = "items_full_CLIP_wo_als.pickle"
+item_enc = "items_full_encoded_test.pickle"
 with open(iidm, "r") as jsfile: iid_map = json.load(jsfile)
 
 model = Model("serve_test_user", als_w, iidm, item_embs, item_enc)
