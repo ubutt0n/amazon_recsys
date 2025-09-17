@@ -94,6 +94,16 @@ services:
       - MINIO_ROOT_USER=${AWS_ACCESS_KEY_ID}
       - MINIO_ROOT_PASSWORD=${AWS_SECRET_ACCESS_KEY}
       - MLFLOW_S3_ENDPOINT_URL=http://minio:9000
+  
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: Docker/frontend/Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - app
 
 volumes:
   postgres:
