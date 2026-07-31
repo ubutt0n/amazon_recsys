@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  model_service:
+    container_name: model_service
+    build:
+      context: .
+      dockerfile: Docker/model_service/Dockerfile
+    ports:
+      - "8003:8003"
+    hostname: model_service
+    networks:
+      - app
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - DATABASE_HOST=192.168.0.104
+      - MINIO_HOST=192.168.0.104:9000
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - MINIO_ROOT_USER=${AWS_ACCESS_KEY_ID}
+      - MINIO_ROOT_PASSWORD=${AWS_SECRET_ACCESS_KEY}
+      - MLFLOW_S3_ENDPOINT_URL=http://192.168.0.104:9000
+      - MLFLOW_TRACKING_URI=http://192.168.0.104:5000
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+  frontend:
+    container_name: frontend
+    build:
+      context: .
+      dockerfile: Docker/frontend/Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - app
+
+networks:
+  app:
+    driver: bridge
