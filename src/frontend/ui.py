@@ -17,7 +17,7 @@ def get_recs(
         "num_recs": num_recs,
     }
     result_json = requests.post(
-        f"http://0.0.0.0:8003/recommend_with_model/",
+        f"http://model_service:8003/recommend_with_model/",
         json=user_data,
         timeout=300,
         params=payload,
@@ -27,7 +27,7 @@ def get_recs(
 @st.cache_data
 def get_item_image(item_id: str):
     item_data = {"item_id": item_id}
-    image_stream = requests.get("http://0.0.0.0:8003/get_item_image/", params=item_data).content
+    image_stream = requests.get("http://model_service:8003/get_item_image/", params=item_data).content
     return BytesIO(image_stream)
 
 @st.cache_data
