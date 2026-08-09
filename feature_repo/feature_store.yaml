@@ -1,0 +1,16 @@
+project: amazon_recsys
+registry: registry.db
+provider: local
+
+offline_store:
+  type: postgres
+  host: 192.168.0.102
+  port: 5432
+  database: test_db
+  user: root
+  password: root
+  sslmode: disable
+
+online_store:
+  type: redis
+  connection_string: "redis:6379,db=0" 

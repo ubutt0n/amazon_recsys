@@ -3,6 +3,7 @@ import requests
 import streamlit as st
 from io import BytesIO
 import random
+from concurrent.futures import ThreadPoolExecutor
 
 
 def get_recs(
@@ -40,6 +41,21 @@ def get_popular_items(num_items: int):
     popular_items = requests.get("http://model_service:8003/get_popular_items/", params=item_data).json()
     return popular_items
 
+@st.cache_data(ttl=600, max_entries=500)
+def download_single_image(item_id: str) -> bytes:
+    try:
+        url = "http://model_service:8003/get_item_image"
+        response = requests.get(url, params={"item_id": item_id}, timeout=3)
+        if response.status_code == 200:
+            return response.content
+    except Exception:
+        pass
+    return b""
+
+def load_all_images_parallel(item_ids: list) -> dict:
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        results = executor.map(download_single_image, item_ids)
+    return dict(zip(item_ids, results))
 
 st.title("Рекомендательная система на датасете Amazon Reviews")
 
@@ -51,6 +67,9 @@ st.write("Оцените товары от 1 до 5:")
 
 cols_per_row = 4
 
+all_current_items = list(st.session_state["items"])
+loaded_images = load_all_images_parallel(all_current_items)
+
 for row_start in range(0, len(st.session_state["items"]), cols_per_row):
     row_items = list(st.session_state["items"])[row_start : row_start + cols_per_row]
     #row_items = st.session_state["items"][row_start:row_start + cols_per_row]
@@ -58,7 +77,9 @@ for row_start in range(0, len(st.session_state["items"]), cols_per_row):
 
     for col, item_id, idx in zip(cols, row_items, range(row_start, row_start + len(row_items))):
         with col:
-            st.image(get_item_image(item_id), width="stretch")
+            img_bytes = loaded_images.get(item_id, b"")
+            st.image(img_bytes, width="stretch")
+            #st.image(get_item_image(item_id), width="stretch")
             st.write(get_item_title(item_id))
             st.session_state["ratings"][idx] = st.slider(
                 f"Оценка для {item_id}", 1, 5, value=st.session_state["ratings"][idx], key=f"slider_{item_id}"
