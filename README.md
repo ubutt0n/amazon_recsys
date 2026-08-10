@@ -2,6 +2,8 @@
 
 A production-grade, two-stage recommendation pipeline deploying Deep Learning (DSSM Transformer) for candidate retrieval and Gradient Boosting (CatBoost) for final ranking. Built with a microservices architecture distributed across a dual-node environment using Docker, Qdrant, Feast, Redis, and MLflow.
 
+![Demonstration](assets/demo.gif)
+
 ---
 
 ## 📊 Evaluation Metrics

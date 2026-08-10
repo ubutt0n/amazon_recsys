@@ -40,10 +40,10 @@ def get_item_image(item_id: str):
 
 @app.get("/get_item_title")
 def get_item_name(item_id: str):
-    conn = sql_engine.connect()
-    query = text(f"""SELECT title FROM public.items WHERE parent_asin = '{item_id}'""")
-    result = conn.execute(query).fetchall()[0][0]
-    return result
+    with sql_engine.connect() as conn:
+        query = text(f"""SELECT title FROM public.items WHERE parent_asin = '{item_id}'""")
+        result = conn.execute(query).fetchall()[0][0]
+        return result
 
 @app.get("/get_popular_items")
 def get_popular_items(num_items: int):
