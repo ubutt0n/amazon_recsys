@@ -20,10 +20,10 @@ The infrastructure is distributed across two separate machines to isolate data s
 
 ```mermaid
 graph TB
-    classDef storage fill:#f9f9f9,stroke:#333,stroke-width:2px;
-    classDef service fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
-    classDef internal fill:#fff,stroke:#0288d1,stroke-width:1px,stroke-dasharray: 3 3;
-    classDef ui fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
+    classDef storage fill:#21262d,stroke:#58a6ff,stroke-width:2px,color:#f0f6fc;
+    classDef service fill:#161b22,stroke:#1f6feb,stroke-width:2px,color:#f0f6fc;
+    classDef internal fill:#0d1117,stroke:#1f6feb,stroke-width:1px,stroke-dasharray: 3 3,color:#c9d1d9;
+    classDef ui fill:#1b2a1a,stroke:#238636,stroke-width:2px,color:#f0f6fc;
 
     subgraph Node1 [Node 1: Storage & MLOps]
         direction LR
@@ -34,7 +34,6 @@ graph TB
 
     subgraph Node2 [Node 2: App & Inference Engine]
         direction TB
-        
         subgraph DB_Layer [Data & Vector Layer]
             direction LR
             Feast[(Redis + Feast Store)]
@@ -57,7 +56,6 @@ graph TB
     end
 
     MinIO -.->|Pull Model Weights| AppService
-    
     Postgres -.->|Sync Offline Features| Feast
 
     class Postgres,MinIO,MLflow,Qdrant,Feast storage;
@@ -101,7 +99,7 @@ graph TB
 │   ├── mlflow_image/      # Mlflow Dockerfile
 │   └── model_service/     # Model service and backend Dockerfile
 ├── feature_repo/          # Feast Feature Store repository
-│   ├── feature_definition.py # Entities, sources, and feature views definitions
+│   ├── definition.py      # Entities, sources, and feature views definitions
 │   └── feature_store.yaml # Feast configuration (Redis online, postgresql offline store)
 ├── models/                # Local model checkpoints and artifacts
 ├── src/                   # Production source code
