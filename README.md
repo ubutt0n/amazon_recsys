@@ -45,14 +45,14 @@ graph TB
         subgraph AppService [FastAPI Model Service]
             direction TB
             PythonEngine[1. Context & Dynamic Features Engine]
-            CatBoost[5. CatBoost Ranker Engine]
+            CatBoost[2. CatBoost Ranker Engine]
         end
 
         Frontend -->|1. User Context| PythonEngine
         PythonEngine -->|2. Fetch Static Features| Feast
         PythonEngine -->|3. ANN Search| Qdrant
         Qdrant -->|4. Return Top-500| CatBoost
-        CatBoost -->|6. Return Top-20| Frontend
+        CatBoost -->|5. Return Top-20| Frontend
     end
 
     MinIO -.->|Pull Model Weights| AppService
@@ -90,30 +90,30 @@ graph TB
 ## 📂 Repository Structure
 
 ```text
-├── data/                  # Local data directory
-│   ├── raw/               # Raw data
-│   ├── interim/           # Datasets saved in csv and item images
-│   └── processed/         # Emebeddings and fully processed data
-├── Docker/                # Custom Dockerfiles and container configurations
-│   ├── frontend/          # Frontend Dockerfile
-│   ├── mlflow_image/      # Mlflow Dockerfile
-│   └── model_service/     # Model service and backend Dockerfile
-├── feature_repo/          # Feast Feature Store repository
-│   ├── definition.py      # Entities, sources, and feature views definitions
-│   └── feature_store.yaml # Feast configuration (Redis online, postgresql offline store)
-├── models/                # Local model checkpoints and artifacts
-├── src/                   # Production source code
-│   ├── backend/           # Model inference and backend
-│   ├── data/              # Data preprocessing
-│   ├── db/                # Postgresql fill
-│   ├── features/          # Feature and embeddings
-│   ├── frontend/          # Frontend
-│   └── model/             # Model training
-├── .dvcignore             # DVC ignore rules
-├── docker-compose.yml     # Infrastructure orchestration for Node 1 (Storage & MLOps)
+├── data/                       # Local data directory
+│   ├── raw/                    # Raw data
+│   ├── interim/                # Datasets saved in csv and item images
+│   └── processed/              # Emebeddings and fully processed data
+├── Docker/                     # Custom Dockerfiles and container configurations
+│   ├── frontend/               # Frontend Dockerfile
+│   ├── mlflow_image/           # Mlflow Dockerfile
+│   └── model_service/          # Model service and backend Dockerfile
+├── feature_repo/               # Feast Feature Store repository
+│   ├── definition.py           # Entities, sources, and feature views definitions
+│   └── feature_store.yaml      # Feast configuration (Redis online, postgresql offline store)
+├── models/                     # Local model checkpoints and artifacts
+├── src/                        # Production source code
+│   ├── backend/                # Model inference and backend
+│   ├── data/                   # Data preprocessing
+│   ├── db/                     # Postgresql fill
+│   ├── features/               # Feature and embeddings
+│   ├── frontend/               # Frontend
+│   └── model/                  # Model training
+├── .dvcignore                  # DVC ignore rules
+├── docker-compose.yml          # Infrastructure orchestration for Node 1 (Storage & MLOps)
 ├── docker-compose_backend.yaml # Production services for Node 2 (Inference Engine)
-├── dvc.yaml               # DVC pipelines definitions
-└── LICENSE                # Project license
+├── dvc.yaml                    # DVC pipelines definitions
+└── LICENSE                     # Project license
 ```
 
 ---
